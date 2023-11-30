@@ -5,6 +5,7 @@ import Browser.Navigation
 import Html exposing (Html, div, h1, h2, img, text)
 import Html.Attributes exposing (src)
 import Url exposing (Url)
+import Url.Parser as Parser exposing (Parser, s)
 
 
 
@@ -14,6 +15,7 @@ import Url exposing (Url)
 type alias Model =
     { key : Browser.Navigation.Key
     , page : Page
+    , entryRoute : Maybe Route
     }
 
 
@@ -21,6 +23,7 @@ init : Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init url key =
     ( { page = Overview
       , key = key
+      , entryRoute = parsePage url
       }
     , Cmd.none
     )
@@ -42,7 +45,56 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        ClickedLink urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Browser.Navigation.load href )
+
+        ChangedUrl url ->
+            { model | entryRoute = url |> parsePage }
+                |> followRoute
+
+
+parsePage : Url -> Maybe Route
+parsePage =
+    fragmentToPath >> Parser.parse parser
+
+
+fragmentToPath : Url -> Url
+fragmentToPath url =
+    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+
+
+parser : Parser (Route -> a) a
+parser =
+    Parser.oneOf
+        [ Parser.map OverviewRoute Parser.top
+        , Parser.map Day01Route (s "day01")
+        ]
+
+
+followRoute : Model -> ( Model, Cmd Msg )
+followRoute model =
+    case model.entryRoute of
+        Just route ->
+            case route of
+                OverviewRoute ->
+                    ( { model | page = Overview }, Cmd.none )
+
+                Day01Route ->
+                    ( { model | page = Day01 }, Cmd.none )
+
+        Nothing ->
+            ( { model | page = Overview }, Cmd.none )
+
+
+type Route
+    = OverviewRoute
+    | Day01Route
 
 
 
