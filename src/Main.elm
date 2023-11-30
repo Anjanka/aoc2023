@@ -2,8 +2,9 @@ module Main exposing (..)
 
 import Browser
 import Browser.Navigation
-import Html exposing (Html, div, h1, h2, img, text)
-import Html.Attributes exposing (src)
+import Html exposing (Html)
+import Pages.Day01
+import Pages.Overview
 import Url exposing (Url)
 import Url.Parser as Parser exposing (Parser, s)
 
@@ -21,12 +22,11 @@ type alias Model =
 
 init : Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
 init url key =
-    ( { page = Overview
-      , key = key
-      , entryRoute = parsePage url
-      }
-    , Cmd.none
-    )
+    { page = Overview
+    , key = key
+    , entryRoute = parsePage url
+    }
+        |> followRoute
 
 
 
@@ -103,11 +103,12 @@ type Route
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
-        , h2 [] [ text "Really!" ]
-        ]
+    case model.page of
+        Overview ->
+            Pages.Overview.view Pages.Overview.init
+
+        Day01 ->
+            Pages.Day01.view Pages.Day01.init
 
 
 
