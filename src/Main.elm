@@ -3,7 +3,7 @@ module Main exposing (..)
 import Browser
 import Browser.Navigation
 import Html exposing (Html)
-import Pages.Day01
+import Pages.Day01 as Day01
 import Pages.Overview
 import Url exposing (Url)
 import Url.Parser as Parser exposing (Parser, s)
@@ -35,12 +35,13 @@ init url key =
 
 type Page
     = Overview
-    | Day01
+    | Day01 Day01.Model
 
 
 type Msg
     = ClickedLink Browser.UrlRequest
     | ChangedUrl Url
+    | Day01Msg Day01.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -57,6 +58,18 @@ update msg model =
         ChangedUrl url ->
             { model | entryRoute = url |> parsePage }
                 |> followRoute
+
+        Day01Msg day01Msg ->
+            case model.page of
+                Day01 day01 ->
+                    let
+                        newModel =
+                            Day01.update day01Msg day01
+                    in
+                    ( { model | page = Day01 newModel }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 parsePage : Url -> Maybe Route
@@ -86,7 +99,7 @@ followRoute model =
                     ( { model | page = Overview }, Cmd.none )
 
                 Day01Route ->
-                    ( { model | page = Day01 }, Cmd.none )
+                    ( { model | page = Day01 Day01.init }, Cmd.none )
 
         Nothing ->
             ( { model | page = Overview }, Cmd.none )
@@ -107,8 +120,8 @@ view model =
         Overview ->
             Pages.Overview.view Pages.Overview.init
 
-        Day01 ->
-            Pages.Day01.view Pages.Day01.init
+        Day01 day01 ->
+            Day01.view day01 |> Html.map Day01Msg
 
 
 
