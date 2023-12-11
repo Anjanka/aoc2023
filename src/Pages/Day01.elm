@@ -71,10 +71,6 @@ getCalibrationValue calDocLine =
             0
 
 
-
---todo: fuse maps
-
-
 searchForDigits : String -> List Int
 searchForDigits calDocLine =
     calDocLine
