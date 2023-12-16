@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation
 import Html exposing (Html)
 import Pages.Day01 as Day01
+import Pages.Day02 as Day02
 import Pages.Overview
 import Url exposing (Url)
 import Url.Parser as Parser exposing (Parser, s)
@@ -36,12 +37,14 @@ init url key =
 type Page
     = Overview
     | Day01 Day01.Model
+    | Day02 Day02.Model
 
 
 type Msg
     = ClickedLink Browser.UrlRequest
     | ChangedUrl Url
     | Day01Msg Day01.Msg
+    | Day02Msg Day02.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -71,6 +74,18 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Day02Msg day02Msg ->
+            case model.page of
+                Day02 day02 ->
+                    let
+                        newModel =
+                            Day02.update day02Msg day02
+                    in
+                    ( { model | page = Day02 newModel }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 parsePage : Url -> Maybe Route
 parsePage =
@@ -87,6 +102,7 @@ parser =
     Parser.oneOf
         [ Parser.map OverviewRoute Parser.top
         , Parser.map Day01Route (s "day01")
+        , Parser.map Day02Route (s "day02")
         ]
 
 
@@ -101,6 +117,9 @@ followRoute model =
                 Day01Route ->
                     ( { model | page = Day01 Day01.init }, Cmd.none )
 
+                Day02Route ->
+                    ( { model | page = Day02 Day02.init }, Cmd.none )
+
         Nothing ->
             ( { model | page = Overview }, Cmd.none )
 
@@ -108,6 +127,7 @@ followRoute model =
 type Route
     = OverviewRoute
     | Day01Route
+    | Day02Route
 
 
 
@@ -122,6 +142,9 @@ view model =
 
         Day01 day01 ->
             Day01.view day01 |> Html.map Day01Msg
+
+        Day02 day02 ->
+            Day02.view day02 |> Html.map Day02Msg
 
 
 
