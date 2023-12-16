@@ -10,32 +10,38 @@ init : Model
 init =
     { content = ""
     , result = ""
+    , result2 = ""
     }
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "Part 1" ]
-        , textarea [ placeholder "Please paste calibration document here.", value model.content, onInput Change ] []
+        [ textarea [ placeholder "Please paste calibration document here.", value model.content, onInput Change ] []
+        , h1 [] [ text "Part 1" ]
         , p []
             [ button [ onClick GetSumOfCalibrationValues ] [ text "Compute" ]
             , text (String.append "Result: " model.result)
             ]
         , h1 [] [ text "Part 2" ]
-        , text "tba"
+        , p []
+            [ button [ onClick GetSumOfCalibrationValuesPart2 ] [ text "Compute" ]
+            , text (String.append "Result: " model.result2)
+            ]
         ]
 
 
 type alias Model =
     { content : String
     , result : String
+    , result2 : String
     }
 
 
 type Msg
     = Change String
     | GetSumOfCalibrationValues
+    | GetSumOfCalibrationValuesPart2
 
 
 update : Msg -> Model -> Model
@@ -46,6 +52,9 @@ update msg model =
 
         GetSumOfCalibrationValues ->
             { model | result = getSumOfCalibrationValues model.content }
+
+        GetSumOfCalibrationValuesPart2 ->
+            { model | result2 = getSumOfCalibrationValuesPart2 model.content }
 
 
 getSumOfCalibrationValues : String -> String
@@ -82,3 +91,58 @@ searchForDigits calDocLine =
                     |> String.toInt
                     |> (\maybeInt -> Maybe.withDefault 0 maybeInt)
             )
+
+
+getSumOfCalibrationValuesPart2 : String -> String
+getSumOfCalibrationValuesPart2 calDoc =
+    calDoc
+        |> String.lines
+        |> List.map getCalibrationValuePart2
+        |> List.sum
+        |> String.fromInt
+
+
+getCalibrationValuePart2 : String -> Int
+getCalibrationValuePart2 calDocLine =
+    10 * searchForDigits2 String.left calDocLine 1 + searchForDigits2 String.right calDocLine 1
+
+
+searchForDigits2 : (Int -> String -> String) -> String -> Int -> Int
+searchForDigits2 makePartialString calDocLine sizeOfPart =
+    if String.length calDocLine < sizeOfPart then
+        0
+
+    else
+        let
+            partialString =
+                makePartialString sizeOfPart calDocLine
+        in
+        if String.contains "1" partialString || String.contains "one" partialString then
+            1
+
+        else if String.contains "2" partialString || String.contains "two" partialString then
+            2
+
+        else if String.contains "3" partialString || String.contains "three" partialString then
+            3
+
+        else if String.contains "4" partialString || String.contains "four" partialString then
+            4
+
+        else if String.contains "5" partialString || String.contains "five" partialString then
+            5
+
+        else if String.contains "6" partialString || String.contains "six" partialString then
+            6
+
+        else if String.contains "7" partialString || String.contains "seven" partialString then
+            7
+
+        else if String.contains "8" partialString || String.contains "eight" partialString then
+            8
+
+        else if String.contains "9" partialString || String.contains "nine" partialString then
+            9
+
+        else
+            searchForDigits2 makePartialString calDocLine (sizeOfPart + 1)
