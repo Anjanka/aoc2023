@@ -97,14 +97,12 @@ possibleGame : { cubeVals : String, color : String, loaded : Int } -> Bool
 possibleGame args =
     args.cubeVals
         |> String.split ","
-        |> (\l -> getCubeValsByColor l args.color)
-        |> List.maximum
-        |> Maybe.withDefault 0
+        |> (\l -> getMaximumByColor l args.color)
         |> (\max -> max <= args.loaded)
 
 
-getCubeValsByColor : List String -> String -> List Int
-getCubeValsByColor cubeVals color =
+getMaximumByColor : List String -> String -> Int
+getMaximumByColor cubeVals color =
     cubeVals
         |> List.filter (\s -> String.contains color s)
         |> List.map
@@ -113,3 +111,5 @@ getCubeValsByColor cubeVals color =
                     |> String.toInt
                     |> (\maybeInt -> Maybe.withDefault 0 maybeInt)
             )
+        |> List.maximum
+        |> Maybe.withDefault 0
