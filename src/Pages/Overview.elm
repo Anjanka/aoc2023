@@ -21,6 +21,10 @@ view _ =
         , p []
             [ a [ href "#/day02" ] [ text "Day02" ]
             ]
+        , p
+            []
+            [ a [ href "#/day03" ] [ text "Day03" ]
+            ]
         ]
 
 
