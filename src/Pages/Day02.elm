@@ -25,7 +25,8 @@ view model =
             ]
         , h1 [] [ text "Part 2" ]
         , p []
-            [ text "tba"
+            [ button [ onClick GetSumOfPowerOfMinimalCubeSets ] [ text "Compute" ]
+            , text (String.append "Result: " model.result2)
             ]
         ]
 
@@ -40,16 +41,20 @@ type alias Model =
 type Msg
     = Change String
     | GetSumOfIDsOfPossibleGames
+    | GetSumOfPowerOfMinimalCubeSets
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
         Change newContent ->
-            { model | content = newContent, result = "" }
+            { model | content = newContent, result = "", result2 = "" }
 
         GetSumOfIDsOfPossibleGames ->
             { model | result = getSumOfIDsOfPossibleGames model.content }
+
+        GetSumOfPowerOfMinimalCubeSets ->
+            { model | result2 = getSumOfPowerOfMinimalCubeSets model.content }
 
 
 getSumOfIDsOfPossibleGames : String -> String
@@ -113,3 +118,30 @@ getMaximumByColor cubeVals color =
             )
         |> List.maximum
         |> Maybe.withDefault 0
+
+
+getSumOfPowerOfMinimalCubeSets : String -> String
+getSumOfPowerOfMinimalCubeSets gameRecs =
+    gameRecs
+        |> String.replace ";" ","
+        |> String.lines
+        |> List.map
+            (\s ->
+                String.split ":" s
+                    |> List.Extra.last
+                    |> Maybe.withDefault ""
+                    |> String.split ","
+            )
+        |> List.map (\ls -> getPower ls)
+        |> List.sum
+        |> String.fromInt
+
+
+getPower : List String -> Int
+getPower gameRec =
+    let
+        max =
+            [ getMaximumByColor gameRec "red", getMaximumByColor gameRec "green", getMaximumByColor gameRec "blue" ]
+    in
+    max
+        |> List.product
