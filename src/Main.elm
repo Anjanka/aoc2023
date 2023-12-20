@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Pages.Day01 as Day01
 import Pages.Day02 as Day02
 import Pages.Day03 as Day03
+import Pages.Day04 as Day04
 import Pages.Overview
 import Url exposing (Url)
 import Url.Parser as Parser exposing (Parser, s)
@@ -40,6 +41,7 @@ type Page
     | Day01 Day01.Model
     | Day02 Day02.Model
     | Day03 Day03.Model
+    | Day04 Day04.Model
 
 
 type Msg
@@ -48,6 +50,7 @@ type Msg
     | Day01Msg Day01.Msg
     | Day02Msg Day02.Msg
     | Day03Msg Day03.Msg
+    | Day04Msg Day04.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -101,6 +104,18 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Day04Msg day04Msg ->
+            case model.page of
+                Day04 day04 ->
+                    let
+                        newModel =
+                            Day04.update day04Msg day04
+                    in
+                    ( { model | page = Day04 newModel }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 parsePage : Url -> Maybe Route
 parsePage =
@@ -119,6 +134,7 @@ parser =
         , Parser.map Day01Route (s "day01")
         , Parser.map Day02Route (s "day02")
         , Parser.map Day03Route (s "day03")
+        , Parser.map Day04Route (s "day04")
         ]
 
 
@@ -139,6 +155,9 @@ followRoute model =
                 Day03Route ->
                     ( { model | page = Day03 Day03.init }, Cmd.none )
 
+                Day04Route ->
+                    ( { model | page = Day04 Day04.init }, Cmd.none )
+
         Nothing ->
             ( { model | page = Overview }, Cmd.none )
 
@@ -148,6 +167,7 @@ type Route
     | Day01Route
     | Day02Route
     | Day03Route
+    | Day04Route
 
 
 
@@ -168,6 +188,9 @@ view model =
 
         Day03 day03 ->
             Day03.view day03 |> Html.map Day03Msg
+
+        Day04 day04 ->
+            Day04.view day04 |> Html.map Day04Msg
 
 
 
