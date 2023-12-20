@@ -26,7 +26,8 @@ view model =
             ]
         , h1 [] [ text "Part 2" ]
         , p []
-            [ text "tba"
+            [ button [ onClick GetNumberOfCards ] [ text "Compute" ]
+            , text (String.append "Result: " model.result2)
             ]
         ]
 
@@ -41,6 +42,7 @@ type alias Model =
 type Msg
     = Change String
     | GetWinningPoints
+    | GetNumberOfCards
 
 
 update : Msg -> Model -> Model
@@ -51,6 +53,9 @@ update msg model =
 
         GetWinningPoints ->
             { model | result = String.fromInt (resultPart1 model.content) }
+
+        GetNumberOfCards ->
+            { model | result2 = String.fromInt (resultPart2 model.content) }
 
 
 listsOfNumbers : String -> List (List (List Int))
@@ -111,3 +116,45 @@ resultPart1 scratchcards =
         |> listsOfNumbers
         |> List.map winningNumbers
         |> points
+
+
+resultPart2 : String -> Int
+resultPart2 scratchcards =
+    scratchcards
+        |> listsOfNumbers
+        |> List.map winningNumbers
+        |> numberOfCards
+
+
+numberOfCards : List Int -> Int
+numberOfCards winNums =
+    winNums
+        |> List.map (\n -> makeNumWinCard n)
+        |> sumUpCards
+        |> List.sum
+
+
+type alias NumWinCard =
+    { numOfCards : Int, winNums : Int }
+
+
+makeNumWinCard : Int -> NumWinCard
+makeNumWinCard winNum =
+    { numOfCards = 1, winNums = winNum }
+
+
+sumUpCards : List NumWinCard -> List Int
+sumUpCards winNums =
+    let
+        rest =
+            List.tail winNums
+
+        first =
+            Maybe.withDefault { numOfCards = 0, winNums = 0 } (List.head winNums)
+    in
+    case rest of
+        Nothing ->
+            [ first.numOfCards ]
+
+        Just actualRest ->
+            List.append [ first.numOfCards ] (sumUpCards (List.Extra.updateIfIndex ((>) first.winNums) (\nwc -> { numOfCards = nwc.numOfCards + first.numOfCards, winNums = nwc.winNums }) actualRest))
