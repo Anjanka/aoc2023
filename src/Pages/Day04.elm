@@ -157,4 +157,7 @@ sumUpCards winNums =
             [ first.numOfCards ]
 
         Just actualRest ->
-            List.append [ first.numOfCards ] (sumUpCards (List.Extra.updateIfIndex ((>) first.winNums) (\nwc -> { numOfCards = nwc.numOfCards + first.numOfCards, winNums = nwc.winNums }) actualRest))
+            actualRest
+                |> List.Extra.updateIfIndex ((>) first.winNums) (\nwc -> { numOfCards = nwc.numOfCards + first.numOfCards, winNums = nwc.winNums })
+                |> sumUpCards
+                |> List.append [ first.numOfCards ]
